@@ -77,7 +77,8 @@ def generate_launch_description():
     nav2_bringup_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(nav2_launch_dir, 'navigation_launch.py'),
-            launch_arguments = {'params_file': nav2_params_file}.items()
+            launch_arguments = {'params_file': nav2_params_file,
+                                'use_sim_time': False}.items()
         )
     )
 
@@ -91,8 +92,6 @@ def generate_launch_description():
     andino_bringup_timer = TimerAction(period=0, actions=[include_andino_bringup])
     nav2_bringup_timer = TimerAction(period=20.0, actions=[nav2_bringup_cmd])
     slam_bringup_timer = TimerAction(period=20.0, actions=[slam_bringup_cmd])
-
-
 
     return LaunchDescription([
         declare_nav2_params_file_cmd,
