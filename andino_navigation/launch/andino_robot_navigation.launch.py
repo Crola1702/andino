@@ -35,7 +35,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 
@@ -47,37 +47,58 @@ def generate_launch_description():
     # [ ] Andino bringup?
     # Get the launch directory
     andino_bringup_dir = get_package_share_directory('andino_bringup')
+
+    nav2_launch_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
+    andino_slam_dir = os.path.join(get_package_share_directory('andino_slam'), 'launch')
     andino_navigation_dir = get_package_share_directory('andino_navigation')
 
-    params_file = LaunchConfiguration('params_file')
+    nav2_params_file = LaunchConfiguration('params_file')
+    slam_params_file = LaunchConfiguration('slam_params_file')
 
-    delcare_params_file_cmd = DeclareLaunchArgument(
-        'params_file',
+
+    declare_nav2_params_file_cmd = DeclareLaunchArgument(
+        'nav2_params_file',
         default_value=os.path.join(andino_navigation_dir, 'params', 'nav2_params.yaml'),
-        description='Full path to the ROS 2 parameters file to use for all launched nodes',
+        description='Full path to the ROS 2 parameters file to use for nav2 nodes',
+    )
+
+    declare_slam_params_file_cmd = DeclareLaunchArgument(
+        'slam_params_file',
+        default_value=os.path.join(andino_slam_dir, 'params', 'slam_toolbox_online_async.yaml')
+        description='Full path to the ROS 2 parameters file to use for slam nodes',
     )
     
-    bringup_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(andino_navigation_dir, 'launch', 'bringup.launch.py')
-        ),
-        launch_arguments={
-            'slam': 'True',
-            'params_file': params_file,
-        }.items(),
-    )
-
     include_andino_bringup = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(andino_bringup_dir, 'launch', 'andino_robot.launch.py')
         )
     )
 
-    ld = LaunchDescription()
+    nav2_bringup_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(nav2_launch_dir, 'navigation_launch.py'),
+            launch_arguments = {'params_file': nav2_params_file}.items()
+        )
+    )
 
-    ld.add_action(delcare_params_file_cmd)
+    slam_bringup_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(slam_bringup_cmd, 'slam_toolbox_online_async.launch.py'),
+            launch_arguments={'slam_params_file': slam_params_file}.items(),
+        )
+    )
 
-    ld.add_action(bringup_cmd)
-    ld.add_action(include_andino_bringup)
+    andino_bringup_timer = TimerAction(period=20.0, actions=[include_andino_bringup])
+    nav2_bringup_timer = TimerAction(period=20.0, actions=[nav2_bringup_cmd])
+    slam_bringup_timer = TimerAction(period=20.0, actions=[slam_bringup_cmd])
+
+
+
+    return LaunchDescription([
+        declare_nav2_params_file_cmd,
+        declare_slam_params_file_cmd,
+        andino_bringup_timer,
+        nav2_bringup_timer,
+        slam_bringup_timer
+    ])
     
-    return ld
