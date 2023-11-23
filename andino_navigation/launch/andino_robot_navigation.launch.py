@@ -49,7 +49,7 @@ def generate_launch_description():
     andino_bringup_dir = get_package_share_directory('andino_bringup')
 
     nav2_launch_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
-    andino_slam_dir = os.path.join(get_package_share_directory('andino_slam'), 'launch')
+    andino_slam_dir = get_package_share_directory('andino_slam')
     andino_navigation_dir = get_package_share_directory('andino_navigation')
 
     nav2_params_file = LaunchConfiguration('params_file')
@@ -64,7 +64,7 @@ def generate_launch_description():
 
     declare_slam_params_file_cmd = DeclareLaunchArgument(
         'slam_params_file',
-        default_value=os.path.join(andino_slam_dir, 'params', 'slam_toolbox_online_async.yaml')
+        default_value=os.path.join(andino_slam_dir, 'config', 'slam_toolbox_online_async.yaml'),
         description='Full path to the ROS 2 parameters file to use for slam nodes',
     )
     
@@ -83,12 +83,12 @@ def generate_launch_description():
 
     slam_bringup_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(slam_bringup_cmd, 'slam_toolbox_online_async.launch.py'),
+            os.path.join(slam_bringup_cmd, 'launch', 'slam_toolbox_online_async.launch.py'),
             launch_arguments={'slam_params_file': slam_params_file}.items(),
         )
     )
 
-    andino_bringup_timer = TimerAction(period=20.0, actions=[include_andino_bringup])
+    andino_bringup_timer = TimerAction(period=0, actions=[include_andino_bringup])
     nav2_bringup_timer = TimerAction(period=20.0, actions=[nav2_bringup_cmd])
     slam_bringup_timer = TimerAction(period=20.0, actions=[slam_bringup_cmd])
 
