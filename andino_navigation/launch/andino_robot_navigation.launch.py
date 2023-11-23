@@ -52,7 +52,7 @@ def generate_launch_description():
     andino_slam_dir = get_package_share_directory('andino_slam')
     andino_navigation_dir = get_package_share_directory('andino_navigation')
 
-    nav2_params_file = LaunchConfiguration('params_file')
+    nav2_params_file = LaunchConfiguration('nav2_params_file')
     slam_params_file = LaunchConfiguration('slam_params_file')
 
 
@@ -76,27 +76,26 @@ def generate_launch_description():
 
     nav2_bringup_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(nav2_launch_dir, 'navigation_launch.py'),
+            os.path.join(nav2_launch_dir, 'navigation_launch.py')
+        ),  
             launch_arguments = {'params_file': nav2_params_file,
-                                'use_sim_time': False}.items()
-        )
+                                'use_sim_time': "False"}.items()
     )
 
     slam_bringup_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(slam_bringup_cmd, 'launch', 'slam_toolbox_online_async.launch.py'),
-            launch_arguments={'slam_params_file': slam_params_file}.items(),
-        )
+            os.path.join(andino_slam_dir, 'launch', 'slam_toolbox_online_async.launch.py'),
+        ),
+        launch_arguments={'slam_params_file': slam_params_file}.items(),
     )
 
-    andino_bringup_timer = TimerAction(period=0, actions=[include_andino_bringup])
     nav2_bringup_timer = TimerAction(period=20.0, actions=[nav2_bringup_cmd])
     slam_bringup_timer = TimerAction(period=20.0, actions=[slam_bringup_cmd])
 
     return LaunchDescription([
         declare_nav2_params_file_cmd,
         declare_slam_params_file_cmd,
-        andino_bringup_timer,
+        include_andino_bringup,
         nav2_bringup_timer,
         slam_bringup_timer
     ])
