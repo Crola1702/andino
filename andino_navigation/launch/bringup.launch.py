@@ -47,7 +47,7 @@ def generate_launch_description():
     # Get the launch directory
     andino_navigation_dir = get_package_share_directory('andino_navigation')
     nav2_launch_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
-    andino_slam_dir = os.path.join(get_package_share_directory('andino_slam'), 'launch')
+    andino_slam_dir = get_package_share_directory('andino_slam')
 
     # Create the launch configuration variables
     namespace = LaunchConfiguration('namespace')
@@ -149,24 +149,23 @@ def generate_launch_description():
             arguments=['--ros-args', '--log-level', log_level],
             remappings=remappings,
             output='screen'),
-        # TODO(olmerg) change to andino slam launch
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(andino_slam_dir, 'slam_toolbox_online_async.launch.py')),
             condition=IfCondition(slam),
             launch_arguments={'slam_params_file': slam_params_file}.items()),
         # TODO(olmerg)create andino localization launch
-        # IncludeLaunchDescription(
-        #    PythonLaunchDescriptionSource(os.path.join(nav2_launch_dir,
-        #                                               'localization_launch.py')),
-        #    condition=IfCondition(PythonExpression(['not ', slam])),
-        #    launch_arguments={'namespace': namespace,
-        #                      'map': map_yaml_file,
-        #                      'use_sim_time': use_sim_time,
-        #                      'autostart': autostart,
-        #                      'params_file': params_file,
-        #                      'use_composition': use_composition,
-        #                      'use_respawn': use_respawn,
-        #                      'container_name': 'nav2_container'}.items()),
+        IncludeLaunchDescription(
+           PythonLaunchDescriptionSource(os.path.join(nav2_launch_dir,
+                                                      'localization_launch.py')),
+           condition=IfCondition(PythonExpression(['not ', slam])),
+           launch_arguments={'namespace': namespace,
+                             'map': map_yaml_file,
+                             'use_sim_time': use_sim_time,
+                             'autostart': autostart,
+                             'params_file': params_file,
+                             'use_composition': use_composition,
+                             'use_respawn': use_respawn,
+                             'container_name': 'nav2_container'}.items()),
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(nav2_launch_dir, 'navigation_launch.py')),

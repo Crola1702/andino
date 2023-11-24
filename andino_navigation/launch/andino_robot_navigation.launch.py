@@ -41,20 +41,27 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
-    # [ ] Navigation Bringup
-    # [ ] Slam Toolbox
-    # [ ] RVIZ (aparte)
-    # [ ] Andino bringup?
     # Get the launch directory
-    andino_bringup_dir = get_package_share_directory('andino_bringup')
-
-    nav2_launch_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
-    andino_slam_dir = get_package_share_directory('andino_slam')
     andino_navigation_dir = get_package_share_directory('andino_navigation')
+    andino_bringup_dir = get_package_share_directory('andino_bringup')
+    andino_slam_dir = get_package_share_directory('andino_slam')
 
+    slam = LaunchConfiguration('slam')
+    map_yaml_file = LaunchConfiguration('map')
     nav2_params_file = LaunchConfiguration('nav2_params_file')
     slam_params_file = LaunchConfiguration('slam_params_file')
 
+    declare_slam_cmd = DeclareLaunchArgument(
+        'slam',
+        default_value='False',
+        description='Whether run a SLAM'
+    )
+
+    declare_map_yaml_cmd = DeclareLaunchArgument(
+        'map',
+        description='Full path to map yaml file to load',
+        default_value=''
+    )
 
     declare_nav2_params_file_cmd = DeclareLaunchArgument(
         'nav2_params_file',
@@ -68,35 +75,36 @@ def generate_launch_description():
         description='Full path to the ROS 2 parameters file to use for slam nodes',
     )
     
-    include_andino_bringup = IncludeLaunchDescription(
+    bringup_andino_robot_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(andino_bringup_dir, 'launch', 'andino_robot.launch.py')
         )
     )
 
-    nav2_bringup_cmd = IncludeLaunchDescription(
+    bringup_navigation_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(nav2_launch_dir, 'navigation_launch.py')
-        ),  
-            launch_arguments = {'params_file': nav2_params_file,
-                                'use_sim_time': "False"}.items()
+            os.path.join(andino_navigation_dir, 'launch', 'bringup.launch.py')
+        )
+        launch_arguments={
+            'params_file': params_file,
+            'slam_params_file': slam_params_file,
+            'slam': slam,
+            'map_yaml_file': map_yaml_file,
+            'use_sim_time': 'False',
+            'autostart': 'True',
+            'use_composition': 'True',
+            'use_respawn': 'False'
+        }.items()
     )
 
-    slam_bringup_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(andino_slam_dir, 'launch', 'slam_toolbox_online_async.launch.py'),
-        ),
-        launch_arguments={'slam_params_file': slam_params_file}.items(),
-    )
-
-    nav2_bringup_timer = TimerAction(period=30.0, actions=[nav2_bringup_cmd])
-    slam_bringup_timer = TimerAction(period=20.0, actions=[slam_bringup_cmd])
+    bringup_navigation_cmd_timer = TimerAction(period=20.0, actions=[bringup_navigation_cmd])
 
     return LaunchDescription([
+        declare_slam_cmd,
+        declare_map_yaml_cmd,
         declare_nav2_params_file_cmd,
         declare_slam_params_file_cmd,
-        include_andino_bringup,
-        nav2_bringup_timer,
-        slam_bringup_timer
+        bringup_andino_robot_cmd,
+        bringup_navigation_cmd_timer
     ])
     
