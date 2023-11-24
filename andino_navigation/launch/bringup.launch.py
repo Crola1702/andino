@@ -150,7 +150,7 @@ def generate_launch_description():
             remappings=remappings,
             output='screen'),
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(os.path.join(andino_slam_dir, 'slam_toolbox_online_async.launch.py')),
+            PythonLaunchDescriptionSource(os.path.join(andino_slam_dir, 'launch', 'slam_toolbox_online_async.launch.py')),
             condition=IfCondition(slam),
             launch_arguments={'slam_params_file': slam_params_file}.items()),
         # TODO(olmerg)create andino localization launch
