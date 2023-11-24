@@ -84,9 +84,9 @@ def generate_launch_description():
     bringup_navigation_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(andino_navigation_dir, 'launch', 'bringup.launch.py')
-        )
+        ),
         launch_arguments={
-            'params_file': params_file,
+            'params_file': nav2_params_file,
             'slam_params_file': slam_params_file,
             'slam': slam,
             'map_yaml_file': map_yaml_file,
