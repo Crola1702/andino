@@ -115,8 +115,8 @@ def generate_launch_description():
 
     declare_slam_params_file_cmd = DeclareLaunchArgument(
         'slam_params_file',
-        default_value=os.path.join(andino_slam_dir, 'params', 'slam_toolbox_online_async.yaml'),
-        description='')
+        default_value=os.path.join(andino_slam_dir, 'config', 'slam_toolbox_online_async.yaml'),
+        description='Full path to the andino SLAM configuration file')
 
     declare_autostart_cmd = DeclareLaunchArgument(
         'autostart', default_value='true',
