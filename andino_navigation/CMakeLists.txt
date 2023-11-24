@@ -15,6 +15,7 @@ endif()
 install(
   DIRECTORY
     launch
+    maps
     params
     rviz
   DESTINATION
