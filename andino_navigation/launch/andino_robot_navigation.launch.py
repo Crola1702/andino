@@ -92,7 +92,7 @@ def generate_launch_description():
             'map_yaml_file': map_yaml_file,
             'use_sim_time': 'False',
             'autostart': 'True',
-            'use_composition': 'True',
+            'use_composition': 'False',
             'use_respawn': 'False'
         }.items()
     )
