@@ -1,4 +1,4 @@
-image: ekuthon_map.pgm
+image: map_1700838756.pgm
 mode: trinary
 resolution: 0.05
 origin: [-1.88, -11.1, 0]
