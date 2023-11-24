@@ -89,7 +89,7 @@ def generate_launch_description():
         launch_arguments={'slam_params_file': slam_params_file}.items(),
     )
 
-    nav2_bringup_timer = TimerAction(period=20.0, actions=[nav2_bringup_cmd])
+    nav2_bringup_timer = TimerAction(period=30.0, actions=[nav2_bringup_cmd])
     slam_bringup_timer = TimerAction(period=20.0, actions=[slam_bringup_cmd])
 
     return LaunchDescription([
